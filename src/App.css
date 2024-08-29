@@ -33,10 +33,12 @@ ul {
 .container {
   max-width: 1876px;
   margin: 0 auto;
+  margin-bottom: auto;
 }
 
 @media (max-width: 1920px) {
   .container {
     margin: 0 18px;
+    margin-bottom: auto;
   }
 }

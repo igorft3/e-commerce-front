@@ -1,19 +1,14 @@
 import React, { useState } from "react";
 import ProductModal from "../productModal/ProductModal";
-import { useAuth } from "../authContext/authContext";
+import { useCart } from "../cartContext/CartContext";
 import "./productCard.css";
 
 const ProductCard = ({ product }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { user, addToCart } = useAuth();
+  const { addToCart } = useCart();
 
   const handleBuyClick = () => {
-    if (user) {
-      alert("Loggin to add product");
-    } else {
-      addToCart(product);
-    }
-    console.log(`${product.name} added to the cart`);
+    addToCart(product);
   };
 
   const toggleModal = () => {
@@ -30,6 +25,7 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="shop__subtitle">{product.name}</h3>
         <p className="shop__desc">{product.description}</p>
+        <p className="shop__price">Price: {product.price}</p>
         <button className="shop__btn" onClick={handleBuyClick}>
           Buy
         </button>

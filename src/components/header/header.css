@@ -98,7 +98,7 @@ header {
   border-radius: 99rem;
   display: flex;
   gap: 5px;
-  font-size: 16px;
+  font-size: 20px;
   color: #000;
   font-weight: 500;
   transition: background-color 0.3s ease;
@@ -112,7 +112,7 @@ header {
 }
 
 .cart-svg {
-  width: 17px;
+  width: 20px;
   height: auto;
   aspect-ratio: 1 / 1;
 }
@@ -128,6 +128,7 @@ header {
   border-radius: 99rem;
   flex-direction: row;
   gap: 5px;
+  font-size: 20px;
   align-items: center;
   text-decoration: none;
   color: #000;

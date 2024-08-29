@@ -125,6 +125,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 .bill__result span {
   font-weight: 700;
@@ -137,4 +138,13 @@
   cursor: pointer;
   font-weight: 600;
   color: #000;
+}
+
+.bill__btn-order:disabled {
+  opacity: 0.1;
+  border: 1px solid;
+}
+
+.error-text {
+  width: 100%;
 }

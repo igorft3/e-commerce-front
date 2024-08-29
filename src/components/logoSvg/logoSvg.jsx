@@ -15,13 +15,7 @@ const LogoSVG = () => (
     <metadata>
       <sfw>
         <slices />
-        <sliceSourceBounds
-          bottomLeftOrigin="true"
-          height="315"
-          width="183.9"
-          x="0"
-          y="0"
-        />
+        <sliceSourceBounds height="315" width="183.9" x="0" y="0" />
       </sfw>
     </metadata>
     <g id="color_index_0" fill="#c6c6c6" style={{ fill: "rgb(198, 198, 198)" }}>

@@ -54,15 +54,31 @@
 
 .popup__img {
   align-self: center;
+  margin-bottom: 20px;
   width: 400px;
   height: auto;
   aspect-ratio: 1 / 1;
+}
+.popup__wrapp-btn {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.popup__price {
+  margin-bottom: 0;
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.popup__price span {
+  font-weight: 600;
 }
 
 .popup__btn {
   align-self: flex-end;
   border-radius: 99em;
-  margin-top: auto;
   border: 1px solid transparent;
   padding: 10px 20px;
   background-color: #fff;

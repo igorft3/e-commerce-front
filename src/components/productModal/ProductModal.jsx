@@ -21,7 +21,12 @@ const ProductModal = ({ product, onClose }) => {
         <h3 className="popup__title">{product.name}</h3>
         <p className="popup__desc">{product.description}</p>
         <img src={product.imgSrc} alt={product.name} className="popup__img" />
-        <button className="popup__btn">Закажи себе такую</button>
+        <div className="popup__wrapp-btn">
+          <p className="popup__price">
+            Price: <span>{product.price}</span>
+          </p>
+          <button className="popup__btn">Закажи себе такую</button>
+        </div>
       </div>
     </div>
   );

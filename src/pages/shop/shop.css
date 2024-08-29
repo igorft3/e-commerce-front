@@ -1,3 +1,8 @@
+:root {
+  --min-width: min-width; /* Задайте здесь ваше начальное значение */
+  min-width: calc(var(--min-width) + 20px);
+}
+
 ul {
   display: flex;
   padding: 0;
@@ -24,6 +29,7 @@ ul {
 
 .shop__text {
   margin: 0;
+  font-size: 24px;
 }
 
 .shop__list-filter {
@@ -44,9 +50,9 @@ ul {
 }
 
 .shop__filter-wrapp {
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 5px; */
 }
 
 .shop__item__filter span {
@@ -58,14 +64,24 @@ ul {
   aspect-ratio: 1 / 1;
 }
 
-.shop__item__filter:last-child {
+/* .shop__item__filter:last-child {
   margin-left: auto;
-}
+} */
 
 .shop__filter-name {
   margin: 0;
   font-size: 13px;
   color: #717171;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 180px;
+}
+
+.shop__filter-name select {
+  border: none;
+  font-size: 20px;
 }
 
 .shop__filter-value {
@@ -78,4 +94,33 @@ ul {
   gap: 10px;
   justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.pagination-btn {
+  width: 57px;
+  height: auto;
+  font-size: 20px;
+  aspect-ratio: 1 / 1;
+  border: none;
+  border-radius: 50%;
+  background-color: #fff;
+  transition: color ease 0.3s, background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.pagination-btn:hover {
+  color: #fff;
+  background-color: #000;
+}
+
+.pagination-btn.active {
+  color: #fff;
+  background-color: #000;
 }

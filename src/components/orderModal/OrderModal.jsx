@@ -1,14 +1,19 @@
-import React, { useState } from "react";
-import { useAuth } from "../authContext/authContext";
+import React, { useState, useEffect } from "react";
+import { useCart } from "../cartContext/CartContext";
 import PersonSVG from "../personSvg/personSvg";
 import "./orderModal.css";
 
 const OrderModal = ({ onClose }) => {
-  const { cart, setCart, walletBalance } = useAuth();
+  const { cart, setCart, walletBalance, placeOrder, calculateTotal } =
+    useCart();
+  const [totalAmount, setTotalAmount] = useState(calculateTotal());
   const [cartItems, setCartItems] = useState(cart);
-  const [totalAmount, setTotalAmount] = useState(
-    cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  );
+
+  useEffect(() => {
+    setCartItems(cart);
+    setTotalAmount(calculateTotal());
+    updateTotalAmount(cart);
+  }, [cart]);
 
   const updateTotalAmount = (updatedCart) => {
     const newTotal = updatedCart.reduce(
@@ -18,22 +23,42 @@ const OrderModal = ({ onClose }) => {
     setTotalAmount(newTotal);
   };
 
-  const handleIncrease = (index) => {
-    const updatedCart = [...cartItems];
-    updatedCart[index].quantity += 1;
+  // const handleIncrease = (index) => {
+  //   const updatedCart = [...cartItems];
+  //   updatedCart[index].quantity += 1;
+  //   setCartItems(updatedCart);
+  //   updateTotalAmount(updatedCart);
+  //   setCart(updatedCart);
+  // };
+
+  const handleIncrease = (productid, genre) => {
+    const updatedCart = cartItems.map((item) => {
+      if (item.productid === productid && item.genre === genre) {
+        return { ...item, quantity: item.quantity + 1 };
+      }
+      return item;
+    });
+
     setCartItems(updatedCart);
     updateTotalAmount(updatedCart);
     setCart(updatedCart);
   };
 
-  const handleDecrease = (index) => {
-    const updatedCart = [...cartItems];
-    if (updatedCart[index].quantity > 1) {
-      updatedCart[index].quantity -= 1;
-      setCartItems(updatedCart);
-      updateTotalAmount(updatedCart);
-      setCart(updatedCart);
-    }
+  const handleDecrease = (productid, genre) => {
+    const updatedCart = cartItems.map((item) => {
+      if (
+        item.productid === productid &&
+        item.genre === genre &&
+        item.quantity > 1
+      ) {
+        return { ...item, quantity: item.quantity - 1 };
+      }
+      return item;
+    });
+
+    setCartItems(updatedCart);
+    updateTotalAmount(updatedCart);
+    setCart(updatedCart);
   };
 
   const handleDelete = (index) => {
@@ -44,11 +69,16 @@ const OrderModal = ({ onClose }) => {
   };
 
   const handleOrder = () => {
-    setCart([]);
-    setCartItems([]);
-    setTotalAmount(0);
-    onClose();
-    alert("Ваш заказ был успешно офо");
+    if (cartItems.length === 0) {
+      alert("Корзина пуста, добавьте товары для оформления заказа");
+      return;
+    }
+    if (placeOrder()) {
+      onClose();
+      alert("Ваш заказ был успешно оформлен");
+    } else {
+      alert("Недостаточно средств для оформления заказа");
+    }
   };
 
   return (
@@ -72,7 +102,8 @@ const OrderModal = ({ onClose }) => {
             Cart<span>{cartItems.length}</span>
           </p>
           <p className="popup__bill wallet">
-            <PersonSVG />${walletBalance.toFixed(2)}
+            <PersonSVG />
+            Wallet:{walletBalance.toFixed(2)}
           </p>
         </div>
         {cartItems.length > 0 ? (
@@ -88,20 +119,24 @@ const OrderModal = ({ onClose }) => {
                 <div className="bill__count-wrapp">
                   <button
                     className="bill__btn-dec"
-                    onClick={() => handleDecrease(index)}
+                    onClick={() =>
+                      handleDecrease(product.productid, product.genre)
+                    }
                   >
                     -
                   </button>
                   <span className="bill__count">{product.quantity}</span>
                   <button
                     className="bill__btn-inc"
-                    onClick={() => handleIncrease(index)}
+                    onClick={() =>
+                      handleIncrease(product.productid, product.genre)
+                    }
                   >
                     +
                   </button>
                 </div>
                 <p className="bill__name">
-                  ${(product.price * product.quantity).toFixed(2)}
+                  {(product.price * product.quantity).toFixed(2)}
                 </p>
                 <button
                   className="btn__delete"
@@ -117,17 +152,17 @@ const OrderModal = ({ onClose }) => {
         )}
         <div className="bill__wrapp">
           <span className="bill__result">
-            Итого: <span>${totalAmount.toFixed(2)}</span>
+            Итого: <span>{totalAmount.toFixed(2)}</span>
           </span>
           <button
             className="bill__btn-order"
-            disabled={totalAmount > walletBalance}
+            disabled={totalAmount > walletBalance || cartItems.length === 0}
             onClick={handleOrder}
           >
             Оформить заказ
           </button>
           {totalAmount > walletBalance && (
-            <p className="error-text">
+            <p className="error-text ">
               Недостаточно средств на вашем счету для оформления заказа.
             </p>
           )}

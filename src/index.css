@@ -3,14 +3,21 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
+  /* color-scheme: light dark; */
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* background-color: #242424; */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --T-color-black: #000;
+  --T-color-white: #fff;
+  --T-color-grey: #d9d9d9;
+  --T-color-raspberry: #ff2969;
+  --T-color-green: #8eff59;
+  --T-color-blue: #00bcff;
 }
 
 /* body {
