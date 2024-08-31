@@ -22,8 +22,8 @@ FROM nginx:alpine
 # Копируем сгенерированные файлы из предыдущего этапа
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Открываем порт 80
-EXPOSE 80
+# Открываем порт 50
+EXPOSE 50
 
 # Запускаем Nginx
 CMD ["nginx", "-g", "daemon off;"]
