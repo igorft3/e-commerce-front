@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
-import api from "../api/api";
+import { api, api8082, api8083, api8084 } from "../api/api";
 
 const CartContext = createContext(null);
 
@@ -14,17 +14,14 @@ export const CartProvider = ({ children }) => {
     email: null,
     firstName: null,
     lastName: null,
+    userRole: null,
+    balance: null,
   });
   const [orders, setOrders] = useState([]);
 
   const checkAndSetToken = () => {
     const token = localStorage.getItem("authToken");
-    if (
-      token !== null &&
-      token !== "undefined" &&
-      token !== undefined &&
-      token.trim() !== ""
-    ) {
+    if (token && token.trim() !== "") {
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       setIsAuthorized(true);
     } else {
@@ -36,15 +33,16 @@ export const CartProvider = ({ children }) => {
   const fetchUserData = async () => {
     checkAndSetToken();
     try {
-      const res = await api.get("/api/current-user-info");
+      const res = await api8082.get("/api/current-user-info");
       const data = res.data;
-
       setUserInfo({
         userId: data.userId,
         username: data.username,
         email: data.email,
         firstName: data.firstName,
         lastName: data.lastName,
+        userRole: data.userRole,
+        balance: data.balance,
       });
       setWalletBalance(data.balance);
       setUserRole(data.userRole);
@@ -56,7 +54,7 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     checkAndSetToken();
     try {
-      const cartResponse = await api.get(":8083/api/get-current-user-cart");
+      const cartResponse = await api8083.get("/api/get-current-user-cart");
       setCart(cartResponse.data.cartItems);
     } catch (err) {
       console.error("Ошибка загрузки корзины", err);
@@ -66,8 +64,7 @@ export const CartProvider = ({ children }) => {
   const fetchWalletBalance = async () => {
     checkAndSetToken();
     try {
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      const balanceResponse = await api.get(":8082/api/current-user-info");
+      const balanceResponse = await api8082.get("/api/current-user-info");
       setWalletBalance(balanceResponse.data.balance);
     } catch (err) {
       console.error("Ошибка загрузки баланса", err);
@@ -76,16 +73,20 @@ export const CartProvider = ({ children }) => {
 
   const fetchCartBalance = async () => {
     checkAndSetToken();
-    await Promise.all([fetchCart(), fetchWalletBalance()]);
+    try {
+      await Promise.all([fetchCart(), fetchWalletBalance()]);
+    } catch (err) {
+      console.error("Ошибка при загрузке корзины и баланса", err);
+    }
   };
 
   const placeOrder = async () => {
     checkAndSetToken();
     try {
-      const res = await api.post(":8082/api/get-current-user-cart");
+      const res = await api8082.post("/api/place-order");
       if (res.status === 200) {
-        setCart([]);
-        fetchCartBalance();
+        setCart([]); // Очищаем корзину после успешного заказа
+        fetchCartBalance(); // Обновляем корзину и баланс
         return true;
       } else {
         return false;
@@ -99,7 +100,7 @@ export const CartProvider = ({ children }) => {
   const addItemToCart = async (productId) => {
     checkAndSetToken();
     try {
-      const res = await api.post(`:8083/api/add-product/${productId}`);
+      const res = await api8082.post(`/api/add-product/${productId}`);
       if (res.status === 200) {
         setCart(res.data.items); // Обновляем корзину с полученными данными
       } else {
@@ -113,8 +114,8 @@ export const CartProvider = ({ children }) => {
   const fetchUserRole = async () => {
     checkAndSetToken();
     try {
-      const res = await api.get(":8082/api/current-user-info");
-      setUserRole(res.date.userRole);
+      const res = await api8082.get("/api/current-user-info");
+      setUserRole(res.data.userRole);
     } catch (err) {
       console.error("Ошибка при получении роли", err);
     }
@@ -123,9 +124,9 @@ export const CartProvider = ({ children }) => {
   const fetchOrders = async () => {
     checkAndSetToken();
     try {
-      const res = await api.get(":8084/api/get-by-current-usser");
+      const res = await api8084.get("/api/get-by-current-user");
       if (res.status === 200) {
-        setOrders(res.data.orders);
+        setOrders(res.data);
       }
     } catch (err) {
       console.error("Ошибка при загрузке заказов", err);
@@ -135,6 +136,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     fetchUserRole();
     fetchOrders();
+    fetchUserData();
   }, []);
 
   return (

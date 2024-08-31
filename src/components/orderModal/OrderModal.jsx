@@ -2,12 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useCart } from "../cartContext/CartContext";
 import PersonSVG from "../personSvg/personSvg";
-// import api from "../api/api";
 import "./orderModal.css";
-// import { product } from "../../data";
 
 const OrderModal = ({ onClose }) => {
-  // cart, fetchCartItems
   const { setCart, walletBalance, placeOrder, token } = useCart();
   const [cartItems, setCartItems] = useState([]);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -18,7 +15,7 @@ const OrderModal = ({ onClose }) => {
       document.body.style.overflow = "";
     };
   }, []);
-  console.log(localStorage.getItem("authToken"));
+
   useEffect(() => {
     const loadCart = async () => {
       try {

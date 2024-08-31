@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 
 const ManagerDashboard = () => {
+  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTabManager, setActiveTabManager] = useState("create");
+
+  const handelTabManageClick = (tabName) => {
+    setActiveTabManager(tabName);
+  };
   return (
     <>
       <ul className="profile__manager-list">
@@ -49,7 +55,7 @@ const ManagerDashboard = () => {
               <li className="profile__item-create">
                 <label className="profile__create-label">
                   Загрузка изображения
-                  <input type="text" className="file" />
+                  <input type="file" className="file" />
                 </label>
               </li>
               <li className="profile__item-create">
@@ -67,7 +73,7 @@ const ManagerDashboard = () => {
             </ul>
           </>
         )}
-        {/* {activeTabManager === "change" && <></>} */}
+        {activeTabManager === "change" && <></>}
         <div className="manager__create"></div>
       </div>
     </>

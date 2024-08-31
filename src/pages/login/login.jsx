@@ -78,8 +78,6 @@ const Login = () => {
       if (response.status === 200) {
         const token = response.data;
         localStorage.setItem("authToken", token);
-        // axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        console.log(token);
         login(token);
         navigate("/");
       } else {

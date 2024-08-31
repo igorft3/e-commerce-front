@@ -65,7 +65,6 @@ const Shop = () => {
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
                 >
-                  <option value="default">По стандарту</option>
                   <option value="asc">По возрастанию</option>
                   <option value="desc">По убыванию</option>
                 </select>

@@ -1,43 +1,29 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { products } from "../../data";
 import { useCart } from "../../components/cartContext/CartContext";
 import "./profile.css";
 import ManagerDashboard from "../../components/managerDashboard/ManagerDashboard ";
 import OrderHistory from "../../components/orderHistory/OrderHistory";
 import UserProfile from "../../components/userProfile/UserProfile";
-// is auth роль
-
-const user = {
-  userid: "1  ",
-  username: "mich12",
-  email: "michael@email.com",
-  firstName: "Michael",
-  lastName: "Shirma",
-  role: "user",
-  balance: "5642",
-};
 
 const Profile = () => {
-  const [isRole, setIsRole] = useState("manager");
-  const [activeTab, setActiveTab] = useState("profile");
+  // const [userRole, setUserRole] = useState("ROLE_ADMIN");
   const [hasToken, setHasToken] = useState(true);
+  const [activeTab, setActiveTab] = useState("profile");
   const [activeTabManager, setActiveTabManager] = useState("create");
   const { userInfo, userRole, orders } = useCart();
+  const navigate = useNavigate();
 
   const handleTabClick = (tabName) => {
     setActiveTab(tabName);
   };
 
-  const handelTabManageClick = (tabName) => {
-    setActiveTabManager(tabName);
-  };
-
   const handleDeleteToken = () => {
     setHasToken(!hasToken);
     if (hasToken) {
-      console.log("Токен есть");
-    } else {
-      console.log("Токен удален");
+      localStorage.removeItem("authToken");
+      navigate("/login");
     }
   };
   return (
@@ -59,14 +45,34 @@ const Profile = () => {
         >
           История заказов
         </li>
-        {isRole === "manager" && (
+        {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
           <li
-            onClick={() => handleTabClick("manager")}
+            onClick={() => handleTabClick("controlGoods")}
             className={`profile__item ${
-              activeTab === "manager" ? "tab-active" : ""
+              activeTab === "controlGoods" ? "tab-active" : ""
             }`}
           >
             Управление товарами
+          </li>
+        )}
+        {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
+          <li
+            onClick={() => handleTabClick("controlOrders")}
+            className={`profile__item ${
+              activeTab === "controlOrders" ? "tab-active" : ""
+            }`}
+          >
+            Управление заказами
+          </li>
+        )}
+        {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
+          <li
+            onClick={() => handleTabClick("controlUsers")}
+            className={`profile__item ${
+              activeTab === "controlUsers" ? "tab-active" : ""
+            }`}
+          >
+            Управление пользователя
           </li>
         )}
         <li className="profile__item" onClick={handleDeleteToken}>
@@ -74,10 +80,10 @@ const Profile = () => {
         </li>
       </ul>
       <div className="profile__content">
-        {activeTab === "profile" && <UserProfile user={userInfo} />}
-        {activeTab === "history" && <OrderHistory Card={orders} />}
+        {activeTab === "profile" && <UserProfile userInfo={userInfo} />}
+        {activeTab === "history" && <OrderHistory products={products} />}
         {activeTab === "manager" &&
-          (userRole === "manager" || userRole === "admin") && (
+          (userRole === "ROLE_MANAGER" || userRole === "ROLE_ADMIN") && (
             <ManagerDashboard />
           )}
       </div>

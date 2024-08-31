@@ -1,6 +1,6 @@
 import React from "react";
 
-const OrderHistory = () => {
+const OrderHistory = ({ products }) => {
   return (
     <ul className="profile__list-history tabs">
       {products.map((product, index) => (
