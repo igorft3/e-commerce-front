@@ -1,84 +1,156 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
+import api from "../api/api";
 
 const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
-  const [walletBalance, setWalletBalance] = useState(100);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [userInfo, setUserInfo] = useState({
+    userId: null,
+    username: null,
+    email: null,
+    firstName: null,
+    lastName: null,
+  });
+  const [orders, setOrders] = useState([]);
 
-  const addToCart = (product) => {
-    setCart((prevCart) => {
-      const existingProductIndex = prevCart.findIndex(
-        (item) =>
-          item.productid === product.productid && item.genre === product.genre
-      );
-
-      if (existingProductIndex !== -1) {
-        const updatedCart = [...prevCart];
-        updatedCart[existingProductIndex].quantity += 1;
-        return updatedCart;
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
-    });
-  };
-
-  const removeFromCart = (productid, genre) => {
-    setCart(
-      cart.filter(
-        (product) => product.productid !== productid || product.genre !== genre
-      )
-    );
-  };
-
-  const increaseQuantity = (productid, genre) => {
-    setCart(
-      cart.map((item) =>
-        item.productid === productid && item.genre === genre
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  };
-
-  const decreaseQuantity = (productid, genre) => {
-    setCart(
-      cart.map((item) =>
-        item.productid === productid &&
-        item.genre === genre &&
-        item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-  };
-
-  const calculateTotal = () => {
-    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  };
-
-  const placeOrder = () => {
-    const total = calculateTotal();
-    if (total <= walletBalance) {
-      setWalletBalance(walletBalance - total);
-      setCart([]);
-      return true;
+  const checkAndSetToken = () => {
+    const token = localStorage.getItem("authToken");
+    if (
+      token !== null &&
+      token !== "undefined" &&
+      token !== undefined &&
+      token.trim() !== ""
+    ) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setIsAuthorized(true);
     } else {
+      setIsAuthorized(false);
+      delete api.defaults.headers.common["Authorization"];
+    }
+  };
+
+  const fetchUserData = async () => {
+    checkAndSetToken();
+    try {
+      const res = await api.get("/api/current-user-info");
+      const data = res.data;
+
+      setUserInfo({
+        userId: data.userId,
+        username: data.username,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      });
+      setWalletBalance(data.balance);
+      setUserRole(data.userRole);
+    } catch (err) {
+      console.error("Ошибка при получении данных пользователя", err);
+    }
+  };
+
+  const fetchCart = async () => {
+    checkAndSetToken();
+    try {
+      const cartResponse = await api.get(":8083/api/get-current-user-cart");
+      setCart(cartResponse.data.cartItems);
+    } catch (err) {
+      console.error("Ошибка загрузки корзины", err);
+    }
+  };
+
+  const fetchWalletBalance = async () => {
+    checkAndSetToken();
+    try {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const balanceResponse = await api.get(":8082/api/current-user-info");
+      setWalletBalance(balanceResponse.data.balance);
+    } catch (err) {
+      console.error("Ошибка загрузки баланса", err);
+    }
+  };
+
+  const fetchCartBalance = async () => {
+    checkAndSetToken();
+    await Promise.all([fetchCart(), fetchWalletBalance()]);
+  };
+
+  const placeOrder = async () => {
+    checkAndSetToken();
+    try {
+      const res = await api.post(":8082/api/get-current-user-cart");
+      if (res.status === 200) {
+        setCart([]);
+        fetchCartBalance();
+        return true;
+      } else {
+        return false;
+      }
+    } catch (err) {
+      console.error("Ошибка при оформлении заказа", err);
       return false;
     }
   };
+
+  const addItemToCart = async (productId) => {
+    checkAndSetToken();
+    try {
+      const res = await api.post(`:8083/api/add-product/${productId}`);
+      if (res.status === 200) {
+        setCart(res.data.items); // Обновляем корзину с полученными данными
+      } else {
+        console.error("Ошибка при добавлении товара в корзину", res);
+      }
+    } catch (err) {
+      console.error("Ошибка при добавлении товара в корзину", err);
+    }
+  };
+
+  const fetchUserRole = async () => {
+    checkAndSetToken();
+    try {
+      const res = await api.get(":8082/api/current-user-info");
+      setUserRole(res.date.userRole);
+    } catch (err) {
+      console.error("Ошибка при получении роли", err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    checkAndSetToken();
+    try {
+      const res = await api.get(":8084/api/get-by-current-usser");
+      if (res.status === 200) {
+        setOrders(res.data.orders);
+      }
+    } catch (err) {
+      console.error("Ошибка при загрузке заказов", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserRole();
+    fetchOrders();
+  }, []);
 
   return (
     <CartContext.Provider
       value={{
         cart,
-        addToCart,
-        removeFromCart,
-        increaseQuantity,
-        decreaseQuantity,
+        setCart,
         walletBalance,
+        isAuthorized,
         placeOrder,
-        calculateTotal,
+        addItemToCart,
+        userRole,
+        fetchCartBalance,
+        userInfo,
+        orders,
+        fetchCart,
       }}
     >
       {children}

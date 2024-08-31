@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/authContext/authContext";
+import axios from "axios";
+
 import "./login.css";
 
 const Login = () => {
-  // Состояния для хранения значений полей формы
   const [formData, setFormData] = useState({
     login: "",
     password: "",
@@ -14,7 +15,6 @@ const Login = () => {
     lastName: "",
   });
 
-  // Состояние для хранения ошибок
   const [errors, setErrors] = useState({
     passwordMatch: "",
     requiredFields: {
@@ -22,16 +22,35 @@ const Login = () => {
       lastName: "",
       email: "",
     },
+    general: "",
   });
 
-  // Состояние для переключения между авторизацией и регистрацией
   const [isAuth, setIsAuth] = useState(true);
-
-  // Получаем функции login и logout из контекста авторизации
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Обработчик изменения значений полей ввода
+  useEffect(() => {
+    // Обновление ошибок при изменении состояния формы
+    const { password, confirmPassword, firstName, lastName, email } = formData;
+    const newErrors = { ...errors };
+
+    if (!isAuth && password !== confirmPassword) {
+      newErrors.passwordMatch = "Пароли не совпадают";
+    } else {
+      newErrors.passwordMatch = "";
+    }
+
+    if (!isAuth) {
+      newErrors.requiredFields = {
+        firstName: firstName ? "" : "Имя обязательно для заполнения",
+        lastName: lastName ? "" : "Фамилия обязательна для заполнения",
+        email: email ? "" : "Email обязателен для заполнения",
+      };
+    }
+
+    setErrors(newErrors);
+  }, [formData, isAuth]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -40,72 +59,37 @@ const Login = () => {
     }));
   };
 
-  // Обработчик отправки формы
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const {
-      login: userLogin,
-      password,
-      confirmPassword,
-      firstName,
-      lastName,
-      email,
-    } = formData;
-    const newErrors = { ...errors };
+    const { login: userLogin, password } = formData;
 
-    // Проверка на совпадение паролей при регистрации
-    if (!isAuth && password !== confirmPassword) {
-      newErrors.passwordMatch = "Пароли не совпадают";
-    } else {
-      newErrors.passwordMatch = "";
-    }
+    const requestData = {
+      username: userLogin,
+      password: password,
+    };
 
-    // Проверка обязательных полей для регистрации
-    if (!isAuth) {
-      newErrors.requiredFields = {
-        firstName: firstName ? "" : "Имя обязательно для заполнения",
-        lastName: lastName ? "" : "Фамилия обязательна для заполнения",
-        email: email ? "" : "Email обязателен для заполнения",
-      };
-
-      // Если есть ошибки, не отправляем форму
-      if (!firstName || !lastName || !email) {
-        setErrors(newErrors);
-        return;
-      }
-    }
-
-    // Если нет ошибок, отправляем запрос на сервер
     try {
-      const response = await fetch("http://10.4.56.79:8082/api/all/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: userLogin,
-          password: password,
-        }),
-      });
+      const response = await axios.post(
+        "http://10.4.56.79:8082/api/all/login",
+        requestData
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-        const { token, userData } = data;
-
-        // Сохранение токена и установка состояния авторизации
-        login(userData, token);
-
-        // Перенаправление на главную страницу после успешной авторизации
+      if (response.status === 200) {
+        const token = response.data;
+        localStorage.setItem("authToken", token);
+        // axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        console.log(token);
+        login(token);
         navigate("/");
       } else {
-        const errorData = await response.json();
         setErrors((prevErrors) => ({
           ...prevErrors,
-          general: errorData.message || "Ошибка авторизации",
+          general: response.data.message || "Ошибка авторизации",
         }));
       }
     } catch (error) {
+      console.error("Login error:", error);
       setErrors((prevErrors) => ({
         ...prevErrors,
         general: "Ошибка соединения с сервером",
@@ -113,7 +97,6 @@ const Login = () => {
     }
   };
 
-  // Обработчик переключения между авторизацией и регистрацией
   const handleToggle = () => {
     setIsAuth((prevState) => !prevState);
   };
@@ -124,7 +107,7 @@ const Login = () => {
         {!isAuth && (
           <>
             <label htmlFor="firstName">
-              <p className="label-field">First name</p>
+              <p className="label-field">Имя</p>
               <input
                 name="firstName"
                 type="text"
@@ -132,6 +115,9 @@ const Login = () => {
                 value={formData.firstName}
                 onChange={handleChange}
               />
+              {errors.requiredFields.firstName && (
+                <p className="error">{errors.requiredFields.firstName}</p>
+              )}
             </label>
           </>
         )}
@@ -139,7 +125,7 @@ const Login = () => {
         {!isAuth && (
           <>
             <label htmlFor="lastName">
-              <p className="label-field">Last name</p>
+              <p className="label-field">Фамилия</p>
               <input
                 name="lastName"
                 type="text"
@@ -147,11 +133,14 @@ const Login = () => {
                 value={formData.lastName}
                 onChange={handleChange}
               />
+              {errors.requiredFields.lastName && (
+                <p className="error">{errors.requiredFields.lastName}</p>
+              )}
             </label>
           </>
         )}
         <label htmlFor="login">
-          <p className="label-field">Login</p>
+          <p className="label-field">Логин</p>
           <input
             name="login"
             type="text"
@@ -163,7 +152,7 @@ const Login = () => {
 
         {!isAuth && (
           <label htmlFor="email">
-            <p className="label-field">Email</p>
+            <p className="label-field">Емаил</p>
             <input
               name="email"
               type="email"
@@ -171,11 +160,14 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
             />
+            {errors.requiredFields.email && (
+              <p className="error">{errors.requiredFields.email}</p>
+            )}
           </label>
         )}
 
         <label htmlFor="password">
-          <p className="label-field">Password</p>
+          <p className="label-field">Пароль</p>
           <input
             name="password"
             type="password"
@@ -188,7 +180,7 @@ const Login = () => {
         {!isAuth && (
           <>
             <label htmlFor="confirmPassword">
-              <p className="label-field">Repeat password</p>
+              <p className="label-field">Повторите пароль</p>
               <input
                 name="confirmPassword"
                 type="password"
@@ -196,10 +188,10 @@ const Login = () => {
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
+              {errors.passwordMatch && (
+                <p className="error">{errors.passwordMatch}</p>
+              )}
             </label>
-            {errors.passwordMatch && (
-              <p className="error">{errors.passwordMatch}</p>
-            )}
           </>
         )}
 

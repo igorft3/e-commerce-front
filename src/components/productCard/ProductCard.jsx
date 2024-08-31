@@ -5,10 +5,10 @@ import "./productCard.css";
 
 const ProductCard = ({ product }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { addToCart } = useCart();
+  const { addItemToCart } = useCart();
 
   const handleBuyClick = () => {
-    addToCart(product);
+    addItemToCart(product);
   };
 
   const toggleModal = () => {
@@ -25,9 +25,9 @@ const ProductCard = ({ product }) => {
         />
         <h3 className="shop__subtitle">{product.name}</h3>
         <p className="shop__desc">{product.description}</p>
-        <p className="shop__price">Price: {product.price}</p>
+        <p className="shop__price">Цена: {product.price}</p>
         <button className="shop__btn" onClick={handleBuyClick}>
-          Buy
+          Купить
         </button>
       </li>
       {isModalOpen && <ProductModal product={product} onClose={toggleModal} />}

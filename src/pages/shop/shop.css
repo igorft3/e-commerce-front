@@ -124,3 +124,9 @@ ul {
   color: #fff;
   background-color: #000;
 }
+
+.shop__filter-field {
+  border: 1px solid #717171;
+  border-radius: 99em;
+  padding: 10px;
+}

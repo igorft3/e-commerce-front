@@ -7,11 +7,17 @@ const Shop = () => {
   const [selectGenry, setSelectGenry] = useState("all");
   const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const itemsPage = 20;
 
-  const filterProduct = products.filter((product) =>
-    selectGenry === "all" ? true : product.genre === selectGenry
-  );
+  const filterProduct = products.filter((product) => {
+    const matchesGenry =
+      selectGenry === "all" ? true : product.genre === selectGenry;
+    const matchesSearchTerm = product.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return matchesGenry && matchesSearchTerm;
+  });
 
   const sortedProducts = filterProduct.sort((a, b) =>
     sortOrder === "asc" ? a.price - b.price : b.price - a.price
@@ -19,7 +25,10 @@ const Shop = () => {
 
   const indexLastItem = currentPage * itemsPage;
   const indexFirstItem = indexLastItem - itemsPage;
-  const currentProducts = sortedProducts.slice(indexFirstItem, indexLastItem);
+  const currentProducts = sortedProducts.slice(
+    indexFirstItem,
+    indexFirstItem + itemsPage
+  );
 
   const totalPages = Math.ceil(sortedProducts.length / itemsPage);
 
@@ -28,24 +37,21 @@ const Shop = () => {
   return (
     <section className="shop">
       <div className="shop__container container">
-        <div className="shop__wrapp-text">
-          <h1 className="shop__title">Закажи cебе, мне и ему тоже...</h1>
-          <p className="shop__text">Да да, прямо сейчас...</p>
-        </div>
+        <div className="shop__wrapp-text"></div>
 
         <ul className="shop__list-filter">
           <li className="shop__item__filter">
             <div className="shop__filter-wrapp">
               <label className="shop__filter-name">
-                Category
+                Категория
                 <select
                   className="shop__filter-select"
                   value={selectGenry}
                   onChange={(e) => setSelectGenry(e.target.value)}
                 >
-                  <option value="all">All</option>
-                  <option value="merch">Merch</option>
-                  <option value="tech">Tech</option>
+                  <option value="all">Все</option>
+                  <option value="merch">Мерч</option>
+                  <option value="tech">Орг-техника</option>
                 </select>
               </label>
             </div>
@@ -53,15 +59,29 @@ const Shop = () => {
           <li className="shop__item__filter">
             <div className="shop__filter-wrapp">
               <label className="shop__filter-name">
-                Price
+                Цена
                 <select
                   className="shop__filter-select"
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value)}
                 >
-                  <option value="asc">Low to High</option>
-                  <option value="desc">High to Low</option>
+                  <option value="default">По стандарту</option>
+                  <option value="asc">По возрастанию</option>
+                  <option value="desc">По убыванию</option>
                 </select>
+              </label>
+            </div>
+          </li>
+          <li className="shop__item__filter">
+            <div className="shop__filter-wrapp">
+              <label className="shop__filter-name">
+                <input
+                  type="search"
+                  className="shop__filter-field"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Обновление состояния при вводе текста
+                  placeholder="Поиск товара.."
+                />
               </label>
             </div>
           </li>

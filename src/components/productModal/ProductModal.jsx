@@ -23,7 +23,7 @@ const ProductModal = ({ product, onClose }) => {
         <img src={product.imgSrc} alt={product.name} className="popup__img" />
         <div className="popup__wrapp-btn">
           <p className="popup__price">
-            Price: <span>{product.price}</span>
+            Цена: <span>{product.price}</span>
           </p>
           <button className="popup__btn">Закажи себе такую</button>
         </div>

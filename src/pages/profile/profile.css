@@ -1,3 +1,7 @@
+.container {
+  width: 100%;
+}
+
 .tab-active {
   background-color: #fff;
   text-decoration: underline;
@@ -32,6 +36,9 @@
 
 .profile__content {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding-right: 100px;
 }
 
@@ -101,4 +108,44 @@
 
 .profile__list-product {
   justify-content: space-between;
+}
+
+.profile__manager-list {
+  width: 100%;
+  gap: 20px;
+}
+.profile__manager-item {
+  padding: 15px 25px;
+  font-size: 33px;
+  font-weight: 400;
+  border-radius: 99em;
+  white-space: nowrap;
+  background-color: #fff;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.profile__list-create {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.profile__list-create {
+}
+
+.profile__item-create {
+}
+
+.profile__create-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile__create-label input {
+  padding: 10px;
+  border: none;
+}
+
+.file {
 }

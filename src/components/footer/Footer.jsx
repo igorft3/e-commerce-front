@@ -11,12 +11,12 @@ const Footer = () => {
           e-commerce
         </a>
         <div className="footer__contact-us">
-          <a href="" className="footer__link">
+          {/* <a href="" className="footer__link">
             FolowwMe
           </a>
           <a href="" className="footer__link">
             SendMeMessage
-          </a>
+          </a> */}
         </div>
       </div>
       <div className="footer__wrapp-strip">
