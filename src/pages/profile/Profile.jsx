@@ -8,11 +8,11 @@ import OrderHistory from "../../components/orderHistory/OrderHistory";
 import UserProfile from "../../components/userProfile/UserProfile";
 
 const Profile = () => {
-  // const [userRole, setUserRole] = useState("ROLE_ADMIN");
+  const [userRole, setUserRole] = useState("ROLE_ADMIN");
   const [hasToken, setHasToken] = useState(true);
   const [activeTab, setActiveTab] = useState("profile");
   const [activeTabManager, setActiveTabManager] = useState("create");
-  const { userInfo, userRole, orders } = useCart();
+  const { userInfo, orders } = useCart();
   const navigate = useNavigate();
 
   const handleTabClick = (tabName) => {
@@ -47,7 +47,7 @@ const Profile = () => {
         </li>
         {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
           <li
-            onClick={() => handleTabClick("controlGoods")}
+            onClick={() => handleTabClick("manager")}
             className={`profile__item ${
               activeTab === "controlGoods" ? "tab-active" : ""
             }`}
@@ -57,7 +57,7 @@ const Profile = () => {
         )}
         {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
           <li
-            onClick={() => handleTabClick("controlOrders")}
+            onClick={() => handleTabClick("manager")}
             className={`profile__item ${
               activeTab === "controlOrders" ? "tab-active" : ""
             }`}
@@ -67,7 +67,7 @@ const Profile = () => {
         )}
         {(userRole === "ROLE_ADMIN" || userRole === "ROLE_MANAGER") && (
           <li
-            onClick={() => handleTabClick("controlUsers")}
+            onClick={() => handleTabClick("manager")}
             className={`profile__item ${
               activeTab === "controlUsers" ? "tab-active" : ""
             }`}
@@ -82,10 +82,7 @@ const Profile = () => {
       <div className="profile__content">
         {activeTab === "profile" && <UserProfile userInfo={userInfo} />}
         {activeTab === "history" && <OrderHistory products={products} />}
-        {activeTab === "manager" &&
-          (userRole === "ROLE_MANAGER" || userRole === "ROLE_ADMIN") && (
-            <ManagerDashboard />
-          )}
+        {activeTab === "manager" && <ManagerDashboard />}
       </div>
     </section>
   );

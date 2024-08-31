@@ -17,13 +17,13 @@ COPY . .
 RUN npm run build
 
 # Используем официальный образ Nginx для развертывания
-FROM nginx:alpine
+# FROM nginx:alpine
 
 # Копируем сгенерированные файлы из предыдущего этапа
-COPY --from=build /app/build /usr/share/nginx/html
+# COPY --from=build /app/build /usr/share/nginx/html
 
 # Открываем порт 50
-EXPOSE 50
+EXPOSE 3000
 
 # Запускаем Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]

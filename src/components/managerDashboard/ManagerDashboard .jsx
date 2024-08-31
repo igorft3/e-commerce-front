@@ -73,7 +73,7 @@ const ManagerDashboard = () => {
             </ul>
           </>
         )}
-        {activeTabManager === "change" && <></>}
+        {/* {activeTabManager === "change" && <></>} */}
         <div className="manager__create"></div>
       </div>
     </>
