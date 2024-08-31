@@ -1,5 +1,5 @@
 # Используем официальный образ Node.js в качестве базового
-FROM node:16.16.0 AS build
+FROM node:16 AS build
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
